@@ -1,0 +1,2 @@
+1,1,pantalon,alpine,nino,xxl,19990,0
+2,50,polera,adidas,adulto,xl,9990,25
