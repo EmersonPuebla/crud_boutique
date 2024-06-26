@@ -15,6 +15,18 @@ def clear():
 def pause():
     os.system("pause")
 
+def confirm_uid(id, file):
+    """
+        Confirma si el ID especificado existe o no en un archivo
+    """
+
+    x = search(id, file)
+
+    if x:
+        False
+    else:
+        True
+
 def confirm_date(date):
     try:
         switch = True
@@ -154,8 +166,15 @@ def add_producto(stock, tipo, marca, categoria, talla, precio, descuento):
             line = line.split(",")
             id = int(line[0])
             id = id + 1
+
         except UnboundLocalError:
             id = 1
+
+    # comprueba sí el id existe y en caso de existir le suma uno para evitar conflictos
+    if confirm_uid(id, productos_file):
+        pass
+    else:
+        id = id + 1
 
     with open(productos_file, 'a') as file:  
         if id == 1:
@@ -163,18 +182,24 @@ def add_producto(stock, tipo, marca, categoria, talla, precio, descuento):
         else:
             file.write(f"\n{str(id).zfill(4)},{str(stock).zfill(4)},{tipo},{marca},{categoria},{talla},{precio},{descuento}")
 
-def search(id):
+def search(id, file_path):
     found_id = False
-    with open(productos_file, "r") as file:
+    with open(file_path, "r") as file:
         for line in file:
             line = line.strip()
             line = line.split(",")
             data = line
 
-            if id in data[0]:
-                found_id = True
-                print(f"ID: {data[0]}\nSTOCK: {data[1]}\nTIPO: {data[2]}\nMARCA: {data[3]}\nCATEGORÍA: {data[4]}\nTALLA: {data[5]}\nPRECIO: ${data[6]}\n%DESCUENTO: {data[7]}")
-                break
+            if file_path == productos_file:
+                if id in data[0]:
+                    found_id = True
+                    print(f"ID: {data[0]}\nSTOCK: {data[1]}\nTIPO: {data[2]}\nMARCA: {data[3]}\nCATEGORÍA: {data[4]}\nTALLA: {data[5]}\nPRECIO: ${data[6]}\n%DESCUENTO: {data[7]}")
+                    break
+            elif file_path == ventas_file:
+                if id in data[1]:
+                    found_id = True
+                    print(f"FOLIO: {data[0]}\nID: {data[1]}\nFECHA: {data[2]}\CANTIDAD: {data[3]}\nTOTAL: {data[4]}")
+                    break
     if found_id:
         return True
     
@@ -183,7 +208,7 @@ def search(id):
 
 def delete(id):
     new_data = []
-    exist = search(id)
+    exist = search(id, productos_file)
 
     if exist:
         with open(productos_file, 'r') as file:
@@ -408,15 +433,15 @@ while True:
                         
                     case 2:
                         clear()
-                        date = input("════════¤ Ingrese la fecha de ventas a buscar en formato \"DIA/MES/AÑO\": ¤════════\n")
+                        date = input("════════¤ Ingrese la fecha de ventas a buscar en formato \"dd-mm-aa\": ¤════════\n")
                         view_date(date)
 
                         pause()
 
                     case 3:
                         clear()
-                        date_1 = input("════════¤ Ingrese la primera fecha del rango en formato: \"DIA/MES/AÑO\": ¤════════\n")
-                        date_2 = input ("════════¤ Ingrese la segunda fecha del rango en formato: \"DIA/MES/AÑO\": ¤════════\n")
+                        date_1 = input("════════¤ Ingrese la primera fecha del rango en formato: \"dd-mm-aa\": ¤════════\n")
+                        date_2 = input ("════════¤ Ingrese la segunda fecha del rango en formato: \"dd-mm-aa\": ¤════════\n")
                         view_date_range(date_1, date_2)
 
                         pause()
@@ -472,7 +497,7 @@ while True:
                     case 4:
                         clear()
                         id = input("════════¤ Ingrese el ID del producto a buscar: ¤════════\n")
-                        search(id)
+                        search(id, productos_file)
                         pause()
 
                     case 5:
