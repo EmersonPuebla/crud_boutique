@@ -15,12 +15,12 @@ def clear():
 def pause():
     os.system("pause")
 
-def confirm_uid(id, file):
+def confirm_uid(id, lista):
     """
         Confirma si el ID especificado existe o no en un archivo
     """
 
-    x = search(id, file)
+    x = search(id, lista)
 
     if x:
         False
@@ -106,18 +106,11 @@ def confirm():
         return -1
 
 def write(archivo, lista):
-    #print(f"FUNC WRITE:\nArchivo: {archivo}\nLista: {lista}\n---")
-
-    #print("FUNC WRITE: Borrar contenido del archivo")
     with open(archivo, "w"):
         pass
 
-    for x in range(0, len(lista)):
-        #print(f"FUNC WRITE: pase por la linea {x}")
-        data = lista[x]
-        data = data[0]
-        data = data.split(",")
-        #print(f"FUNC WRITE: {data}")
+    for line in range(len(lista)):
+        data = lista[line]
 
         with open(archivo, "a") as file:
             #print(f"FUNC WRITE: Imprimí el contenido de la linea {data[0]}")
@@ -137,25 +130,17 @@ def write(archivo, lista):
     pause()
 
 def read(archivo, lista):
-    #print("FUNC READ: Lista original")
-    print(lista)
-    
-    with open(archivo, "r") as file:
-        for line in file:
-            line = line.strip()
-            #print(f"FUNC READ: Se hizo un strip (linea: {line[0]})")
+    if not len(lista) > 0:
+        with open(archivo, "r") as file:
+            for line in file:
+                line = line.strip()
+                line = line.split(",")
 
-            lista.append([line])
-            #print(f"FUNC READ: Se hizo un append (linea: {line[0]})")
-    
-    for x in range(0, len(lista)):
-        #print(f"---\nFUNC READ: Se imprimió la linea {line[0]}")
-        print(lista[x])
+                lista.extend([line])
 
-        #print("---\nFUNC READ: Lista actualizada:")
-        print(lista)
-
-    pause()
+        print(f"Se ha cargado la información del archivo '{archivo}' exitosamente")
+    else:
+        print(f"No se han cargado los datos del archivo '{archivo}' ya que la lista local ya contiene información")
 
 def add_producto(stock, tipo, marca, categoria, talla, precio, descuento):
     with open(productos_file, "r") as file:
@@ -176,30 +161,31 @@ def add_producto(stock, tipo, marca, categoria, talla, precio, descuento):
     else:
         id = id + 1
 
-    with open(productos_file, 'a') as file:  
-        if id == 1:
-            file.write(f"{str(id).zfill(4)},{str(stock).zfill(4)},{tipo},{marca},{categoria},{talla},{precio},{descuento}")
-        else:
-            file.write(f"\n{str(id).zfill(4)},{str(stock).zfill(4)},{tipo},{marca},{categoria},{talla},{precio},{descuento}")
+    productos_db.append([(str(id).zfill(4)),(str(stock).zfill(4)),tipo,marca,categoria,talla,precio,descuento])
+    
+    # with open(productos_file, 'a') as file:  
+    #     if id == 1:
+    #         file.write(f"{str(id).zfill(4)},{str(stock).zfill(4)},{tipo},{marca},{categoria},{talla},{precio},{descuento}")
+    #     else:
+    #         file.write(f"\n{str(id).zfill(4)},{str(stock).zfill(4)},{tipo},{marca},{categoria},{talla},{precio},{descuento}")
 
-def search(id, file_path):
+def search(id, lista):
     found_id = False
-    with open(file_path, "r") as file:
-        for line in file:
-            line = line.strip()
-            line = line.split(",")
-            data = line
+    for line in range(len(lista)):
+        data = lista[line]
+        id = str(id).zfill(4)
 
-            if file_path == productos_file:
-                if id in data[0]:
-                    found_id = True
-                    print(f"ID: {data[0]}\nSTOCK: {data[1]}\nTIPO: {data[2]}\nMARCA: {data[3]}\nCATEGORÍA: {data[4]}\nTALLA: {data[5]}\nPRECIO: ${data[6]}\n%DESCUENTO: {data[7]}")
-                    break
-            elif file_path == ventas_file:
-                if id in data[1]:
-                    found_id = True
-                    print(f"FOLIO: {data[0]}\nID: {data[1]}\nFECHA: {data[2]}\CANTIDAD: {data[3]}\nTOTAL: {data[4]}")
-                    break
+        if lista == productos_db:
+            if id == data[0]:
+                found_id = True
+                print(f"ID: {data[0]}\nSTOCK: {data[1]}\nTIPO: {data[2]}\nMARCA: {data[3]}\nCATEGORÍA: {data[4]}\nTALLA: {data[5]}\nPRECIO: ${data[6]}\n%DESCUENTO: {data[7]}")
+                break
+        elif lista == ventas_db:
+            if id == data[1]:
+                found_id = True
+                print(f"FOLIO: {data[0]}\nID: {data[1]}\nFECHA: {data[2]}\CANTIDAD: {data[3]}\nTOTAL: {data[4]}")
+                break
+
     if found_id:
         return True
     
@@ -208,10 +194,10 @@ def search(id, file_path):
 
 def delete(id):
     new_data = []
-    exist = search(id, productos_file)
+    exist = search(id, productos_db)
 
     if exist:
-        with open(productos_file, 'r') as file:
+        with open(productos_db, 'r') as file:
             for line in file:
                 line = line.strip()
                 data = line.split(',')
@@ -497,7 +483,7 @@ while True:
                     case 4:
                         clear()
                         id = input("════════¤ Ingrese el ID del producto a buscar: ¤════════\n")
-                        search(id, productos_file)
+                        search(id, productos_db)
                         pause()
 
                     case 5:
@@ -526,9 +512,12 @@ while True:
 
                 match i_report:
                     case 1:
-                        pass
+                        read(productos_file, productos_db)
+                        read(ventas_file, ventas_db)
+                        pause()
+
                     case 2:
-                        pass
+                        write(productos_file, productos_db)
                     case 3: 
                         pass
 
