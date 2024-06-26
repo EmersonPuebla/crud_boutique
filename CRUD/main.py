@@ -12,6 +12,81 @@ def clear():
 def pause():
     os.system("pause")
 
+def confirm():
+    switch = False
+    while True:
+        reply = input("════════¤ Confirme la operación (si/no): ¤════════\n").lower()
+
+        if reply == "s" or reply == "si":
+            switch = True
+            break
+
+        elif reply == "n" or reply == "no":
+            print("\n════════¤ Operacion cancelada ¤════════\n")
+            pause()
+            break
+    
+        else:
+            clear()
+            print("\n════════¤ ERROR: Ingrese una opcion valida ¤════════\n")
+            pause()
+
+    if switch:
+        return True
+
+def write(archivo, lista):
+    #print(f"FUNC WRITE:\nArchivo: {archivo}\nLista: {lista}\n---")
+
+    #print("FUNC WRITE: Borrar contenido del archivo")
+    with open(archivo, "w"):
+         pass
+
+    for x in range(0, len(lista)):
+        #print(f"FUNC WRITE: pase por la linea {x}")
+        data = lista[x]
+        data = data[0]
+        data = data.split(",")
+        #print(f"FUNC WRITE: {data}")
+
+        with open(archivo, "a") as file:
+            #print(f"FUNC WRITE: Imprimi el contenido de la linea {data[0]}")
+
+            if archivo == productos_file:
+                try:
+                    file.write(f"{data[0]},{data[1]},{data[2]},{data[3]},{data[4]},{data[5]},{data[6]},{data[7]}\n")
+                except IndexError as e:
+                    print(f"ERROR: Write function -> if: {e}")
+                
+            elif archivo == ventas_file:
+                try:
+                    file.write(f"{data[0]},{data[1]},{data[2]},{data[3]}\n")
+                except IndexError as e:
+                    print(f"ERROR: Write function -> if: {e}")
+
+    pause()
+
+def read(archivo, lista):
+    #print("FUNC READ: Lista original")
+    print(lista)
+    
+    with open(archivo, "r") as file:
+        for line in file:
+            line = line.strip()
+            #print(f"FUNC READ: Se hizo un strip (linea: {line[0]})")
+
+            lista.append([line])
+            #print(f"FUNC READ: Se hizo un append (linea: {line[0]})")
+    
+    for x in range(0, len(lista)):
+        #print(f"---\nFUNC READ: Se imprimio la linea {line[0]}")
+        print(lista[x])
+
+        #print("---\nFUNC READ: Lista actualizada:")
+        print(lista)
+
+    pause()
+
+
 def add_producto(stock, tipo, marca, categoria, talla, precio, descuento):
     with open(productos_file, "r") as file:
         for line in file:
@@ -26,9 +101,9 @@ def add_producto(stock, tipo, marca, categoria, talla, precio, descuento):
 
     with open(productos_file, 'a') as file:  
         if id == 1:
-            file.write(f"{id},{stock},{tipo},{marca},{categoria},{talla},{precio},{descuento}")
+            file.write(f"{str(id).zfill(4)},{str(stock).zfill(4)},{tipo},{marca},{categoria},{talla},{precio},{descuento}")
         else:
-            file.write(f"\n{id},{stock},{tipo},{marca},{categoria},{talla},{precio},{descuento}")
+            file.write(f"\n{str(id).zfill(4)},{str(stock).zfill(4)},{tipo},{marca},{categoria},{talla},{precio},{descuento}")
 
 def search(id):
     found_id = False
@@ -94,62 +169,75 @@ def modify(id, stock, tipo, marca, categoria, talla, precio, descuento):
             file.write(line + '\n')
 
 def view_ventas():
-    print("Nº Folio - ID - Fecha - Cantidad - Total\n")
-    with open(ventas_file, "r") as file:
-        for line in file:
-            line = line.strip()
-            line = line.split(",")
-            data = line
+    if not os.stat(ventas_file).st_size == 0:
+        print("Nº Folio - ID - Fecha - Cantidad - Total\n")
+        with open(ventas_file, "r") as file:
+            for line in file:
+                line = line.strip()
+                line = line.split(",")
+                data = line
 
-            print(f"{data[0]}   {data[1]}   {data[2]}   {data[3]}   ${data[4]}")
+                print(f"{data[0]}   {data[1]}   {data[2]}   {data[3]}   ${data[4]}")
+    else:
+        print("No hay datos que mostrar")
 
 def view_products():
-    print("ID - Stock - Tipo - Marca - Categoría - Talla - Precio - %Descuento\n")
-    with open(productos_file, "r") as file:
-        for line in file:
-            line = line.strip()
-            line = line.split(",")
-            data = line
-            
-            print(f"{data[0]}    {data[1]}    {data[2]}    {data[3]}    {data[4]}    {data[5]}    ${data[6]}    {data[7]}")
+    if not os.stat(ventas_file).st_size == 0:
+        print("ID - Stock - Tipo - Marca - Categoría - Talla - Precio - %Descuento\n")
+        with open(productos_file, "r") as file:
+            for line in file:
+                line = line.strip()
+                line = line.split(",")
+                data = line
+                
+                print(f"{data[0]}    {data[1]}    {data[2]}    {data[3]}    {data[4]}    {data[5]}    ${data[6]}    {data[7]}")
+    else:
+        print("No hay datos que mostrar")
 
 def view_date(date):
-    found_date = False
-    print("Nº Folio - ID - Fecha - Cantidad - Total\n")
-    with open(ventas_file, "r") as file:
-        for line in file:
-            line = line.strip()
-            line = line.split(",")
-            data = line
+    if not os.stat(ventas_file).st_size == 0:
+        found_date = False
+        print("Nº Folio - ID - Fecha - Cantidad - Total\n")
+        with open(ventas_file, "r") as file:
+            for line in file:
+                line = line.strip()
+                line = line.split(",")
+                data = line
 
-            if date in data[2]:
-                print(f"{data[0]}   {data[1]}   {data[2]}   {data[3]}   ${data[4]}")
-                found_date = True
-        
-        if not found_date:
-            print(f"No se registraron ventas en la fecha {date}")
+                if date in data[2]:
+                    print(f"{data[0]}   {data[1]}   {data[2]}   {data[3]}   ${data[4]}")
+                    found_date = True
+            
+            if not found_date:
+                print(f"No se registraron ventas en la fecha {date}")
+    else:
+        print("No hay datos que mostrar")
 
 def view_date_range(date_1, date_2):
-    found_date = False
-    print("Nº Folio - ID - Fecha - Cantidad - Total\n")
-    with open(ventas_file, "r") as file:
-        for line in file:
-            line = line.strip()
-            line = line.split(",")
-            data = line
+    if not os.stat(ventas_file).st_size == 0:
+        found_date = False
+        print("Nº Folio - ID - Fecha - Cantidad - Total\n")
+        with open(ventas_file, "r") as file:
+            for line in file:
+                line = line.strip()
+                line = line.split(",")
+                data = line
 
-            if date_1 in data[2]:
-                print(f"{data[0]}   {data[1]}   {data[2]}   {data[3]}   ${data[4]}")
-                found_date = True
+                if date_1 in data[2]:
+                    print(f"{data[0]}   {data[1]}   {data[2]}   {data[3]}   ${data[4]}")
+                    found_date = True
 
-            if date_2 in data[2]:
-                print(f"{data[0]}   {data[1]}   {data[2]}   {data[3]}   ${data[4]}")
-                found_date = True
+                if date_2 in data[2]:
+                    print(f"{data[0]}   {data[1]}   {data[2]}   {data[3]}   ${data[4]}")
+                    found_date = True
 
-        if not found_date:
-            print(f"No se registraron ventas en la fecha {date}")
+            if not found_date:
+                print(f"No se registraron ventas en la fecha {date}")
+    else:
+        print("No hay datos que mostrar")
 
 def sell(id, quantity):
+    switch = False
     with open(productos_file, "r") as file:
         for line in file:
             line = line.strip()
@@ -160,12 +248,12 @@ def sell(id, quantity):
                 new_stock = stock - quantity
                 data[1] = new_stock
                 price = int(data[6])
-                discount = int(data[7])
+                discount = int(data[7]) 
 
                 total_price = (((100 - discount) / 100) * price) * quantity
                 
                 if new_stock >= 0:
-                    modify(str(id), str(new_stock), str(data[2]), str(data[3]), str(data[4]), str(data[5]), str(data[6]), str(data[7]))
+                    modify(str(id).zfill(4), str(new_stock), str(data[2]), str(data[3]), str(data[4]), str(data[5]), str(data[6]), str(data[7]))
                     with open(ventas_file, "r") as file:
                         for line in file:
                             pass
@@ -177,167 +265,199 @@ def sell(id, quantity):
                     with open(ventas_file, 'a') as file:  
                         date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
-                        file.write(f"\n{new_folio},{id},{date},{quantity},{round(total_price)}")
+                        file.write(f"\n{str(new_folio).zfill(4)},{str(id).zfill(4)},{date},{str(quantity).zfill(4)},{round(total_price)}")
+                    switch = True
                 else:
                     print("ERROR: No puedes vender mas de lo que tienes")
+                    switch = False
         pause()
 
+    return switch
+
+clear()
+print(f"""
+¤═════════════════════════════════════════════¤
+║ ______             _   _                    ║
+║ | ___ \           | | (_)                   ║
+║ | |_/ / ___  _   _| |_ _  __ _ _   _  ___   ║
+║ | ___ \/ _ \| | | | __| |/ _` | | | |/ _ \\  ║
+║ | |_/ / (_) | |_| | |_| | (_| | |_| |  __/  ║
+║ \____/ \___/ \__,_|\__|_|\__, |\__,_|\___|  ║
+║ Sistema de ventas           | |             ║
+║                             |_|             ║
+¤═════════════════════════════════════════════¤    
+║ Luis Alvarez                                ║
+║ Emerson Puebla                              ║
+¤═════════════════════════════════════════════¤
+║ version {version}                                   ║
+¤═════════════════════════════════════════════¤
+""")
+pause()
+
 while True:
-    hour = str((datetime.now()).strftime("%d/%m/%Y"))
-    clear()
-    i_menu = int(input(f"""
-    {hour} 
-    version: {version}
-    -------------- << "Boutique" >> --------------
-    1) Vender
-    2) Reportes
-    3) Mantenedor
-    4) Administración
-    5) Salir 
+    try: 
+        hour = str((datetime.now()).strftime("%d/%m/%Y"))
+        clear()
+        i_menu = int(input(f"""
+        ¤═════════¤ Boutique ¤═════════¤
+        ║ {hour}        version  {version} ║
+        ¤══════════════════════════════¤
+        ║ 1) Vender                    ║
+        ║ 2) Reportes                  ║
+        ║ 3) Mantenedor                ║
+        ║ 4) Administración            ║
+        ║ 5) Salir                     ║
+        ¤══════════════════════════════¤
+        ║ Ingrese un numero entre 1-5: ║ 
+        ¤══════════════════════════════¤
+        """))
 
-    Ingrese un numero entre 1-5:                    
-    """))
-    # Falta terminar administración 
-    
-    match i_menu:
-        case 1:
-            clear()
-            print("-------------- << \"Venta\" >> --------------\n")
-
-            id = int(input("ID del producto: "))
-            quantity = int(input("Ingrese la cantidad: "))
-
-            sell(id, quantity)      
-
-        case 2:
-            clear()
-            i_report = int(input("""
-    -------------- << \"Reportes\" >> --------------
-    1) General de ventas
-    2) Ventas por fecha especifica
-    3) Ventas por rango de fecha
-    4) Salir al menu principal
-
-    Ingrese un numero entre 1-4: 
-            """))
-
-            match i_report:
-                case 1:
+        match i_menu:
+            case 1:
+                while True:
                     clear()
-                    view_ventas()
-                    pause()                   
-                    
-                case 2:
-                    clear()
-                    date = input("Ingrese la fecha de ventas a buscar en formato \"DIA/MES/AÑO\": ")
-                    view_date(date)
+                    print("¤═════════¤ Venta ¤═════════¤\n")
 
-                    pause()
+                    id = int(input("════════¤ ID del producto: ¤════════\n"))
+                    quantity = int(input("════════¤ Ingrese la cantidad: ¤════════\n"))
 
-                case 3:
-                    clear()
-                    date_1 = input("Ingrese la primera fecha del rango en formato: \"DIA/MES/AÑO\": ")
-                    date_2 = input ("Ingrese la segunda fecha del rango en formato: \"DIA/MES/AÑO\": ")
-                    view_date_range(date_1, date_2)
+                    x = confirm()
+                    if x:
+                        if sell(id, quantity):
+                            break
+                        else:
+                            pass    
+                    else:
+                        pass
 
-                    pause()
-                case 4:
-                    pass
+            case 2:
+                clear()
+                i_report = int(input("""
+                ¤══════════¤ Reportes ¤══════════¤
+                ║ 1) General de ventas           ║
+                ║ 2) Ventas por fecha especifica ║
+                ║ 3) Ventas por rango de fecha   ║
+                ║ 4) Salir al menu principal     ║
+                ¤════════════════════════════════¤
+                ║  Ingrese un numero entre 1-4:  ║ 
+                ¤════════════════════════════════¤
+                """))
 
-        case 3:
-            clear()
-            print("")
-            i_crud = int(input("""
-    -------------- << \"Mantenedor\" >> --------------
-    1) Agregar
-    2) Eliminar
-    3) Editar
-    4) Buscar
-    5) Listar
-    6) Salir al menu principal
+                match i_report:
+                    case 1:
+                        clear()
+                        view_ventas()
+                        pause()                   
+                        
+                    case 2:
+                        clear()
+                        date = input("════════¤ Ingrese la fecha de ventas a buscar en formato \"DIA/MES/AÑO\": ¤════════\n")
+                        view_date(date)
 
-    Ingrese un numero entre 1-6: 
-            """))
+                        pause()
 
-            match i_crud:
-                case 1:
-                    stock = input("Cantidad de stock del producto: \n").lower()
-                    tipo = input("Tipo de prenda (pantalon, polera, etc): \n").lower()
-                    marca = input("Marca de la prenda: \n").lower()
-                    categoria = (input("Categoría de la prenda (niño, adulto, etc): \n").lower()).replace("ñ", "n")
-                    talla = input("que talla es el producto: \n").lower()
-                    precio = input("Ingrese el valor: \n").lower()
-                    descuento = (input("%Descuento del producto (si no posee ingrese 0): \n")).lower()
+                    case 3:
+                        clear()
+                        date_1 = input("════════¤ Ingrese la primera fecha del rango en formato: \"DIA/MES/AÑO\": ¤════════\n")
+                        date_2 = input ("════════¤ Ingrese la segunda fecha del rango en formato: \"DIA/MES/AÑO\": ¤════════\n")
+                        view_date_range(date_1, date_2)
 
-                    add_producto(stock, tipo, marca, categoria, talla, precio, descuento)
+                        pause()
+                    case 4:
+                        pass
 
-                case 2:
-                    id = input("Ingrese el ID del producto a eliminar: ")
-                    delete(id)
+            case 3:
+                clear()
+                print("")
+                i_crud = int(input("""
+                ¤═════════¤ Mantenedor ¤═════════¤
+                ║ 1) Agregar                     ║
+                ║ 2) Eliminar                    ║
+                ║ 3) Editar                      ║
+                ║ 4) Buscar                      ║
+                ║ 5) Listar                      ║
+                ║ 6) Salir al menu principal     ║       
+                ¤════════════════════════════════¤
+                ║  Ingrese un numero entre 1-6:  ║ 
+                ¤════════════════════════════════¤
+                """))
 
-                    pause()
-                case 3:
-                    clear()
-                    id = input("Ingrese el ID del producto a modificar: ")
-                    stock = input("Cantidad de stock del producto: \n").lower()
-                    tipo = input("Tipo de prenda (pantalon, polera, etc): \n").lower()
-                    marca = input("Marca de la prenda: \n").lower()
-                    categoria = (input("Categoría de la prenda (niño, adulto, etc): \n").lower()).replace("ñ", "n")
-                    talla = input("que talla es el producto: \n").lower()
-                    precio = input("Ingrese el valor: \n").lower()
-                    descuento = (input("%Descuento del producto (si no posee ingrese 0): \n")).lower()
-                    modify(id, stock, tipo, marca, categoria, talla, precio, descuento)
-                    pause()
+                match i_crud:
+                    case 1:
+                        stock = input("════════¤ Cantidad de stock del producto: ¤════════\n").lower()
+                        tipo = input("════════¤ Tipo de prenda (pantalon, polera, etc): ¤════════\n").lower()
+                        marca = input("════════¤ Marca de la prenda: ¤════════ \n").lower()
+                        categoria = (input("════════¤ Categoría de la prenda (niño, adulto, etc): ¤════════\n").lower()).replace("ñ", "n")
+                        talla = input("════════¤ Talla del producto: ¤════════\n").lower()
+                        precio = input("════════¤ Ingrese el valor: ¤════════\n").lower()
+                        descuento = (input("════════¤ %Descuento del producto (si no posee ingrese 0): ¤════════\n")).lower()
 
-                case 4:
-                    clear()
-                    id = input("Ingrese el ID del producto a buscar: ")
-                    search(id)
-                    pause()
+                        add_producto(stock, tipo, marca, categoria, talla, precio, descuento)
 
-                case 5:
-                    clear()
-                    view_products()
-                    pause()
-                case 6:
-                    pass
-        
-        case 4:
-            """         
-            1. Cargar datos
-            2. Respaldar datos
-            3. Salir
+                    case 2:
+                        id = input("Ingrese el ID del producto a eliminar: ")
+                        delete(id)
 
-            Cargar datos: Esto lee todo lo que contienen los archivos productos.txt y ventas.txt y carga las listas y ventas.
+                        pause()
+                    case 3:
+                        clear()
+                        id = input("════════¤ Ingrese el ID del producto a modificar: ¤════════\n")
+                        stock = input("════════¤ Cantidad de stock del producto: ¤════════\n").lower()
+                        tipo = input("════════¤ Tipo de prenda (pantalon, polera, etc): ¤════════\n").lower()
+                        marca = input("════════¤ Marca de la prenda: ¤════════ \n").lower()
+                        categoria = (input("════════¤ Categoría de la prenda (niño, adulto, etc): ¤════════\n").lower()).replace("ñ", "n")
+                        talla = input("════════¤ Talla del producto: ¤════════\n").lower()
+                        precio = input("════════¤ Ingrese el valor: ¤════════\n").lower()
+                        descuento = (input("════════¤ %Descuento del producto (si no posee ingrese 0): ¤════════\n")).lower()
+                        modify(id, stock, tipo, marca, categoria, talla, precio, descuento)
+                        pause()
 
-            Respaldar datos: Esta opción actualiza todo lo contenido 
+                    case 4:
+                        clear()
+                        id = input("════════¤ Ingrese el ID del producto a buscar: ¤════════\n")
+                        search(id)
+                        pause()
 
-            Observaciones: Debe tener presente si su lista de productos y 
-                        ventas ya tienen datos entonces NO debe cargar los datos desde el txt
+                    case 5:
+                        clear()
+                        view_products()
+                        pause()
+                    case 6:
+                        pass
             
-            """
-            clear()
-            print("-------------- << \"Administración\" >> --------------  ")
-            i_report = int(input("""
-            1) Cargar datos
-            2) Respaldar datos
-            3) Salir al menu principal
-                    
-            Ingrese un numero entre 1-3: 
-            """))
+            case 4:
+                """         
+                Observaciones: Debe tener presente si su lista de productos y 
+                            ventas ya tienen datos entonces NO debe cargar los datos desde el txt
+                
+                """
+                clear()
+                i_report = int(input("""
+                ¤═══════¤ Administración ¤═══════¤
+                ║ 1) Cargar datos                ║
+                ║ 2) Respaldar datos             ║
+                ║ 3) Salir al menu principal     ║       
+                ¤════════════════════════════════¤
+                ║  Ingrese un numero entre 1-3:  ║ 
+                ¤════════════════════════════════¤
+                """))
 
-            match i_report:
-                case 1:
-                    pass
-                case 2:
-                    pass
-                case 3: 
-                    pass
+                match i_report:
+                    case 1:
+                        pass
+                    case 2:
+                        pass
+                    case 3: 
+                        pass
 
-        case 5:
-            clear()
-            print("Fin del programa")
-            break
-        
-        case _:
-            pass
+            case 5:
+                clear()
+                print("════════¤ Fin del programa ¤════════")
+                break
+            
+            case _:
+                pass
+
+    except ValueError:
+        print("Solo puede ingresar un numero entre 1-5")
+        pause()
