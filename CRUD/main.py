@@ -121,7 +121,7 @@ def write(archivo, lista):
                 except IndexError as e:
                     print(f"ERROR: Write function -> if: {e}")
                 
-            elif archivo == ventas_file:
+            if archivo == ventas_file:
                 try:
                     file.write(f"{data[0]},{data[1]},{data[2]},{data[3]}\n")
                 except IndexError as e:
@@ -143,32 +143,23 @@ def read(archivo, lista):
         print(f"No se han cargado los datos del archivo '{archivo}' ya que la lista local ya contiene información")
 
 def add_producto(stock, tipo, marca, categoria, talla, precio, descuento):
-    with open(productos_file, "r") as file:
-        for line in file:
-            pass
-
-        try:
-            line = line.split(",")
-            id = int(line[0])
-            id = id + 1
-
-        except UnboundLocalError:
-            id = 1
+    id = productos_db[-1]
+    id = int(id[0])
 
     # comprueba sí el id existe y en caso de existir le suma uno para evitar conflictos
-    if confirm_uid(id, productos_file):
+    if confirm_uid(id, productos_db):
         pass
     else:
         id = id + 1
 
     productos_db.append([(str(id).zfill(4)),(str(stock).zfill(4)),tipo,marca,categoria,talla,precio,descuento])
-    
-    # with open(productos_file, 'a') as file:  
-    #     if id == 1:
-    #         file.write(f"{str(id).zfill(4)},{str(stock).zfill(4)},{tipo},{marca},{categoria},{talla},{precio},{descuento}")
-    #     else:
-    #         file.write(f"\n{str(id).zfill(4)},{str(stock).zfill(4)},{tipo},{marca},{categoria},{talla},{precio},{descuento}")
 
+def add_venta(id, date, quantity, total_price):
+    folio = ventas_db[-1]
+    folio = folio[0]
+
+    productos_db.append([folio,str(id).zfill(4),date,str(quantity).zfill(4),round(total_price)])
+    
 def search(id, lista):
     found_id = False
     for line in range(len(lista)):
@@ -191,154 +182,128 @@ def search(id, lista):
     
     if not found_id:
         print("No se ha encontrado un producto con el ID especificado")
+        return False
 
 def delete(id):
-    new_data = []
-    exist = search(id, productos_db)
+    for line in range(len(productos_db)):
+        data = productos_db[line]
+        id = str(id).zfill(4)
 
-    if exist:
-        with open(productos_db, 'r') as file:
-            for line in file:
-                line = line.strip()
-                data = line.split(',')
-                if data[0] != id:
-                    new_data.append(line)
-
-        with open(productos_file, 'w') as file:
-            for line in new_data:
-                file.write(line + '\n')
+        if id == data[0]:
+            productos_db.pop(line)
 
 def modify(id, stock, tipo, marca, categoria, talla, precio, descuento):
-    new_data = []
-    found_id = False
-    
-    with open(productos_file, 'r') as file:
-        for line in file:
-            line = line.strip()
-            data = line.split(',')
+    for line in range(len(productos_db)):
+        data = productos_db[line]
+        id = str(id).zfill(4)
 
-            if data[0] == id:
-                data[1] = stock
-                data[2] = tipo
-                data[3] = marca
-                data[4] = categoria
-                data[5] = talla
-                data[6] = precio
-                data[7] = descuento
-                
-                found_id = True
-            new_data.append(','.join(data))
-    
-    if not found_id:
-        return False
-    
-    with open(productos_file, 'w') as file:
-        for line in new_data:
-            file.write(line + '\n')
+        if id == data[0]:
+            
+            data[0] = (str(id).zfill(4))
+            data[1] = (str(stock).zfill(4))
+            data[2] = tipo
+            data[3] = marca
+            data[4] = categoria
+            data[5] = talla
+            data[6] = precio
+            data[7] = descuento
+
+            print("Se han modificado exitosamente los datos")
+            break
+
 
 def view_ventas():
-    if not os.stat(ventas_file).st_size == 0:
+    if len(ventas_db) > 0:
         print("Nº Folio - ID - Fecha - Cantidad - Total\n")
-        with open(ventas_file, "r") as file:
-            for line in file:
-                line = line.strip()
-                line = line.split(",")
-                data = line
+        for line in range(len(ventas_db)):
+            data = ventas_db[line]
 
-                print(f"{data[0]}   {data[1]}   {data[2]}   {data[3]}   ${data[4]}")
+            print(f"{data[0]}   {data[1]}   {data[2]}   {data[3]}   ${data[4]}")
     else:
         print("No hay datos que mostrar")
 
 def view_products():
-    if not os.stat(ventas_file).st_size == 0:
+    if len(productos_db) > 0:
         print("ID - Stock - Tipo - Marca - Categoría - Talla - Precio - %Descuento\n")
-        with open(productos_file, "r") as file:
-            for line in file:
-                line = line.strip()
-                line = line.split(",")
-                data = line
-                
-                print(f"{data[0]}    {data[1]}    {data[2]}    {data[3]}    {data[4]}    {data[5]}    ${data[6]}    {data[7]}")
+        for line in range(len(productos_db)):
+            data = productos_db[line]
+
+            print(f"{data[0]}    {data[1]}    {data[2]}    {data[3]}    {data[4]}    {data[5]}    ${data[6]}    {data[7]}")
     else:
         print("No hay datos que mostrar")
 
 def view_date(date):
-    if not os.stat(ventas_file).st_size == 0:
+    if len(ventas_db) > 0:
         found_date = False
         print("Nº Folio - ID - Fecha - Cantidad - Total\n")
-        with open(ventas_file, "r") as file:
-            for line in file:
-                line = line.strip()
-                line = line.split(",")
-                data = line
+        for line in range(len(ventas_db)):
+            data = ventas_db[line]
 
-                if date in data[2]:
-                    print(f"{data[0]}   {data[1]}   {data[2]}   {data[3]}   ${data[4]}")
-                    found_date = True
-            
-            if not found_date:
-                print(f"No se registraron ventas en la fecha {date}")
+
+            if date == data[2]:
+                print(f"{data[0]}   {data[1]}   {data[2]}   {data[3]}   ${data[4]}")
+                found_date = True
+        
+        if not found_date:
+            print(f"No se registraron ventas en la fecha {date}")
     else:
         print("No hay datos que mostrar")
 
 def view_date_range(date_1, date_2):
-    if not os.stat(ventas_file).st_size == 0:
+    if len(ventas_db) > 0:
         found_date = False
         print("Nº Folio - ID - Fecha - Cantidad - Total\n")
-        with open(ventas_file, "r") as file:
-            for line in file:
-                line = line.strip()
-                line = line.split(",")
-                data = line
+        
+        date_1 = date_1.split("-")
+        date_1 = int(date_1[0])
 
-                if date_1 in data[2]:
-                    print(f"{data[0]}   {data[1]}   {data[2]}   {data[3]}   ${data[4]}")
-                    found_date = True
+        date_2 = date_2.split("-")
+        date_2 = int(date_2[0])
 
-                if date_2 in data[2]:
-                    print(f"{data[0]}   {data[1]}   {data[2]}   {data[3]}   ${data[4]}")
-                    found_date = True
+        for line in range(len(ventas_db)):
+            data = ventas_db[line]
 
-            if not found_date:
-                print(f"No se registraron ventas en la fecha {date}")
+            date = data[2]
+            date = date.split("-")
+            date = int(date[0])
+
+            if range(date_1, date_2) == date:
+                print(f"{data[0]}   {data[1]}   {data[2]}   {data[3]}   ${data[4]}")
+                found_date = True
+        
+        if not found_date:
+            print(f"No se registraron ventas en la fecha {date}")
     else:
         print("No hay datos que mostrar")
 
 def sell(id, quantity):
     switch = False
-    with open(productos_file, "r") as file:
-        for line in file:
-            line = line.strip()
-            data = line.split(",")
 
-            if int(data[0]) == id:
-                stock = int(data[1])
-                new_stock = stock - quantity
-                data[1] = new_stock
-                price = int(data[6])
-                discount = int(data[7]) 
+    for line in range(len(productos_db)):
+        data = productos_db[line]
+        id = str(id).zfill(4)
 
-                total_price = (((100 - discount) / 100) * price) * quantity
-                
-                if new_stock >= 0:
-                    modify(str(id).zfill(4), str(new_stock), str(data[2]), str(data[3]), str(data[4]), str(data[5]), str(data[6]), str(data[7]))
-                    with open(ventas_file, "r") as file:
-                        for line in file:
-                            pass
-                        line = line.strip()
-                        line = line.split(",")
-                        folio = int(line[0])
-                        new_folio = folio + 1
+        if str(data[0]) == id:
+            stock = int(data[1])
+            new_stock = stock - quantity
+            data[1] = new_stock
+            price = int(data[6])
+            discount = int(data[7]) 
 
-                    with open(ventas_file, 'a') as file:  
-                        date = datetime.now().strftime("%d-%m-%Y")
+            total_price = (((100 - discount) / 100) * price) * quantity
+            
+            if new_stock >= 0:
+                modify(str(id).zfill(4), str(new_stock), str(data[2]), str(data[3]), str(data[4]), str(data[5]), str(data[6]), str(data[7]))
 
-                        file.write(f"\n{str(new_folio).zfill(4)},{str(id).zfill(4)},{date},{str(quantity).zfill(4)},{round(total_price)}")
-                    switch = True
-                else:
-                    print("ERROR: No puedes vender mas de lo que tienes")
-                    switch = False
-        pause()
+                date = datetime.now().strftime("%d-%m-%Y")
+
+                add_venta(id, date, quantity, total_price)
+
+                switch = True
+            
+            else:
+                print("ERROR: No puedes vender mas de lo que tienes")
+                switch = False
 
     return switch
 
@@ -394,9 +359,8 @@ while True:
                         if sell(id, quantity):
                             break
                         else:
-                            pass    
-                    else:
-                        pass
+                            pass
+                pause()
 
             case 2:
                 clear()
@@ -518,6 +482,7 @@ while True:
 
                     case 2:
                         write(productos_file, productos_db)
+                        write(ventas_file, ventas_db)
                     case 3: 
                         pass
 

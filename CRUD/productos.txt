@@ -1,4 +1,3 @@
-0001,0000,pantalon,alpine,nino,xxl,19990,0
-0002,0050,polera,adidas,adulto,xl,9990,25
-0003,19,polera,alpine,adulto,l,8990,0
-0004,19,polera,alpine,adulto,l,8990,0
+0001,0015,pantalon,alpino,adulto,xs,17990,0
+0003,0090,polera,alpino,nino,xls,800,0
+0005,0020,pantalon,wiki,adulto,xs,9990,0
