@@ -6,11 +6,68 @@ version = "2"
 productos_file = "productos.txt"
 ventas_file = "ventas.txt"
 
+productos_db = []
+ventas_db = []
+
 def clear():
     os.system("cls")
 
 def pause():
     os.system("pause")
+
+def confirm_date(date):
+    try:
+        switch = True
+        reason = ""
+
+        # comprobar formato
+        if not ((date[2] and date[5]) == "-"):
+            reason = "No cuenta con el formato adecuado (dd-mm-aa)"
+            switch = False
+
+        day = int(date[0:2])
+        month = int(date[3:5]) 
+        year = int(date[6:10])
+
+        # comprobar si el str de la fecha tiene 10 caracteres de largo
+        if len(date) != 10:
+            reason = "No cuenta con la cantidad de caracteres esperados (10)"
+            switch = False
+
+        # comprobar si el dia esta entre 1 y 31
+        if not (1 <= int(day) <= 31):
+            reason = "El dia no se encuentra en el rango de 1-31"
+            switch = False
+
+        # comprobar si el mes esta entre 1 y 12 
+        if not (1 <= int(month) <= 12):
+            reason = "El mes no se encuentra en el rango de 1-12"
+            switch = False
+
+        # comprobar si es mayor o igual al año 2000
+        if not int(year) >= 2000:
+            reason = "El año no es mayor o igual al 2000"
+            switch = False
+
+        # comprobar si es bisiesto
+        if year % 4 == 0 and (year % 100 != 0 or year % 400 == 0):
+            # bisiesto
+            if month == 2 and day > 29:
+                reason = "El dia no puede ser mayor a 29 en Febrero"
+                switch = False
+        else:
+            # no bisiesto
+            if month == 2 and day > 28:
+                reason = "El dia no puede ser mayor a 28 en Febrero en un año bisiesto"
+                switch = False
+                
+    except ValueError as e:
+        pass
+
+    if switch:
+        return 1, reason
+    else:
+        return -1, reason
 
 def confirm():
     switch = False
@@ -22,24 +79,26 @@ def confirm():
             break
 
         elif reply == "n" or reply == "no":
-            print("\n════════¤ Operacion cancelada ¤════════\n")
+            print("\n════════¤ Operación cancelada ¤════════\n")
             pause()
             break
     
         else:
             clear()
-            print("\n════════¤ ERROR: Ingrese una opcion valida ¤════════\n")
+            print("\n════════¤ ERROR: Ingrese una opción valida ¤════════\n")
             pause()
 
     if switch:
-        return True
+        return 1
+    else:
+        return -1
 
 def write(archivo, lista):
     #print(f"FUNC WRITE:\nArchivo: {archivo}\nLista: {lista}\n---")
 
     #print("FUNC WRITE: Borrar contenido del archivo")
     with open(archivo, "w"):
-         pass
+        pass
 
     for x in range(0, len(lista)):
         #print(f"FUNC WRITE: pase por la linea {x}")
@@ -49,7 +108,7 @@ def write(archivo, lista):
         #print(f"FUNC WRITE: {data}")
 
         with open(archivo, "a") as file:
-            #print(f"FUNC WRITE: Imprimi el contenido de la linea {data[0]}")
+            #print(f"FUNC WRITE: Imprimí el contenido de la linea {data[0]}")
 
             if archivo == productos_file:
                 try:
@@ -78,14 +137,13 @@ def read(archivo, lista):
             #print(f"FUNC READ: Se hizo un append (linea: {line[0]})")
     
     for x in range(0, len(lista)):
-        #print(f"---\nFUNC READ: Se imprimio la linea {line[0]}")
+        #print(f"---\nFUNC READ: Se imprimió la linea {line[0]}")
         print(lista[x])
 
         #print("---\nFUNC READ: Lista actualizada:")
         print(lista)
 
     pause()
-
 
 def add_producto(stock, tipo, marca, categoria, talla, precio, descuento):
     with open(productos_file, "r") as file:
@@ -143,7 +201,6 @@ def modify(id, stock, tipo, marca, categoria, talla, precio, descuento):
     new_data = []
     found_id = False
     
-    # Abrimos el archivo en modo lectura
     with open(productos_file, 'r') as file:
         for line in file:
             line = line.strip()
@@ -263,7 +320,7 @@ def sell(id, quantity):
                         new_folio = folio + 1
 
                     with open(ventas_file, 'a') as file:  
-                        date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+                        date = datetime.now().strftime("%d-%m-%Y")
 
                         file.write(f"\n{str(new_folio).zfill(4)},{str(id).zfill(4)},{date},{str(quantity).zfill(4)},{round(total_price)}")
                     switch = True
@@ -296,7 +353,7 @@ pause()
 
 while True:
     try: 
-        hour = str((datetime.now()).strftime("%d/%m/%Y"))
+        hour = str((datetime.now()).strftime("%d-%m-%Y"))
         clear()
         i_menu = int(input(f"""
         ¤═════════¤ Boutique ¤═════════¤
@@ -461,3 +518,6 @@ while True:
     except ValueError:
         print("Solo puede ingresar un numero entre 1-5")
         pause()
+    
+    except:
+        pass
