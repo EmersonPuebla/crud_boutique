@@ -1,3 +1,11 @@
-0001,0093,pantalon,alpino,adulto,xs,17990,20
+0001,0092,pantalon,alpino,adulto,xs,17990,20
 0003,0090,polera,alpino,nino,xls,800,0
-0005,0020,pantalon,wiki,adulto,xs,9990,0
+0005,0020,pantalon,kiwi,adulto,xs,9990,0
+0002,0020,polera,siouxi,adulto,m,9990,0
+0004,0055,short,alpino,adulto,s,5990,0
+0006,0033,chaqueta,siouxi,adulto,l,15990,0
+0007,0088,polera,alpino,nino,m,6990,12
+0008,0042,short,kiwi,adulto,m,4990,3
+0009,0065,pantalon,bugy,adulto,m,11990,10
+0010,0999,polera,kiwi,adulto,xs,800,0
+0011,0060,pantalon,kiwi,adulto,xl,9990,0
