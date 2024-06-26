@@ -113,21 +113,11 @@ def write(archivo, lista):
         data = lista[line]
 
         with open(archivo, "a") as file:
-            #print(f"FUNC WRITE: Imprimí el contenido de la linea {data[0]}")
-
             if archivo == productos_file:
-                try:
-                    file.write(f"{data[0]},{data[1]},{data[2]},{data[3]},{data[4]},{data[5]},{data[6]},{data[7]}\n")
-                except IndexError as e:
-                    print(f"ERROR: Write function -> if: {e}")
+                file.write(f"{data[0]},{data[1]},{data[2]},{data[3]},{data[4]},{data[5]},{data[6]},{data[7]}\n")
                 
-            if archivo == ventas_file:
-                try:
-                    file.write(f"{data[0]},{data[1]},{data[2]},{data[3]}\n")
-                except IndexError as e:
-                    print(f"ERROR: Write function -> if: {e}")
-
-    pause()
+            elif archivo == ventas_file:
+                file.write(f"{data[0]},{data[1]},{data[2]},{data[3]},{data[4]}\n")
 
 def read(archivo, lista):
     if not len(lista) > 0:
@@ -157,8 +147,9 @@ def add_producto(stock, tipo, marca, categoria, talla, precio, descuento):
 def add_venta(id, date, quantity, total_price):
     folio = ventas_db[-1]
     folio = folio[0]
+    folio = int(folio) + 1
 
-    productos_db.append([folio,str(id).zfill(4),date,str(quantity).zfill(4),round(total_price)])
+    ventas_db.append([str(folio).zfill(4),id,date,quantity,total_price])
     
 def search(id, lista):
     found_id = False
@@ -284,26 +275,31 @@ def sell(id, quantity):
         id = str(id).zfill(4)
 
         if str(data[0]) == id:
+            
             stock = int(data[1])
             new_stock = stock - quantity
             data[1] = new_stock
             price = int(data[6])
             discount = int(data[7]) 
-
-            total_price = (((100 - discount) / 100) * price) * quantity
+            total_price = round((((100 - discount) / 100) * price) * quantity)
+            quantity = str(quantity).zfill(4)
             
+            # hasta aquí good
+
             if new_stock >= 0:
-                modify(str(id).zfill(4), str(new_stock), str(data[2]), str(data[3]), str(data[4]), str(data[5]), str(data[6]), str(data[7]))
+
+                modify(id, str(new_stock), str(data[2]), str(data[3]), str(data[4]), str(data[5]), str(data[6]), str(data[7]))
 
                 date = datetime.now().strftime("%d-%m-%Y")
 
                 add_venta(id, date, quantity, total_price)
 
                 switch = True
-            
+
             else:
                 print("ERROR: No puedes vender mas de lo que tienes")
                 switch = False
+
 
     return switch
 
@@ -347,20 +343,14 @@ while True:
 
         match i_menu:
             case 1:
-                while True:
-                    clear()
-                    print("¤═════════¤ Venta ¤═════════¤\n")
+                clear()
+                print("¤═════════¤ Venta ¤═════════¤\n")
+                id = int(input("════════¤ ID del producto: ¤════════\n"))
+                quantity = int(input("════════¤ Ingrese la cantidad: ¤════════\n"))
 
-                    id = int(input("════════¤ ID del producto: ¤════════\n"))
-                    quantity = int(input("════════¤ Ingrese la cantidad: ¤════════\n"))
-
-                    x = confirm()
-                    if x:
-                        if sell(id, quantity):
-                            break
-                        else:
-                            pass
-                pause()
+                if confirm():
+                    if sell(id, quantity):
+                        pause()                
 
             case 2:
                 clear()
