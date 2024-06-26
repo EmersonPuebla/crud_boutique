@@ -374,15 +374,42 @@ while True:
                     case 2:
                         clear()
                         date = input("════════¤ Ingrese la fecha de ventas a buscar en formato \"dd-mm-aa\": ¤════════\n")
-                        view_date(date)
-
+                        x, reason = confirm_date(date)
+                        if x == 1:
+                            view_date(date)
+                        elif x == -1:
+                            print(reason)
+                            
                         pause()
 
                     case 3:
+
+                        switch_1 = False
+                        switch_2 = False
+                        
                         clear()
                         date_1 = input("════════¤ Ingrese la primera fecha del rango en formato: \"dd-mm-aa\": ¤════════\n")
+
+                        x, reason = confirm_date(date_1)
+                        if x == 1:
+                            view_date(date_1)
+                            switch_1 = True
+                        elif x == -1:
+                            print(reason)
+
                         date_2 = input ("════════¤ Ingrese la segunda fecha del rango en formato: \"dd-mm-aa\": ¤════════\n")
-                        view_date_range(date_1, date_2)
+                        
+                        x, reason = confirm_date(date_2)
+                        if x == 1:
+                            view_date(date_2)
+                            switch_2 = True
+                        elif x == -1:
+                            print(reason)
+                        
+                        if switch_1 and switch_2:
+                            view_date_range(date_1, date_2)
+                        else:
+                            pass
 
                         pause()
                     case 4:
